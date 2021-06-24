@@ -6,7 +6,7 @@ machine:
 
 dependencies:
   cache_directories:
-    - ~/.cache/yarn    
+    - ~/.cache/yarn
 
 jobs:
   test:
@@ -30,7 +30,7 @@ jobs:
             - ~/.cache/yarn
       - run:
           name: Run Tests
-          command: npx nx affected --target=test
+          command: npx nx affected --target=test --base=HEAD~1
 
 workflows:
   testing:
