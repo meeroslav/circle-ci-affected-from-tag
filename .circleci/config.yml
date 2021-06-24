@@ -10,13 +10,13 @@ dependencies:
 
 executors:
   default-executor:
-      parameters:
-        resource_class:
-          type: string
-          default: medium
-      docker:
-        - image: cimg/node:14.17-browsers
-      working_directory: ~/repo
+    parameters:
+      resource_class:
+        type: string
+        default: medium
+    docker:
+      - image: cimg/node:14.17-browsers
+    working_directory: ~/repo
 
 jobs:
   test:
@@ -32,7 +32,7 @@ jobs:
             - yarn-packages-{{ .Branch }}>-{{ checksum "yarn.lock" }}
       - run:
           name: Get Last Sucessful Tag
-          shell: "/bin/bash"
+          shell: '/bin/bash'
           command: |
             source ./scripts/get-last-successful-tag.sh
             echo "export AFFECTED_HEAD=\"$BASE_SHA\";" >> $BASH_ENV
@@ -45,7 +45,7 @@ jobs:
             - ~/.cache/yarn
       - run:
           name: Run Tests
-          shell: "/bin/bash -eo pipefail"
+          shell: '/bin/bash -eo pipefail'
           command: |
             yarn nx affected --target=test --base=$AFFECTED_HEAD
       - run:
