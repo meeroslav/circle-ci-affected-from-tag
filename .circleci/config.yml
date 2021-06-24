@@ -1,0 +1,38 @@
+version: 2.1
+
+machine:
+  pre:
+    - mkdir ~/.cache/yarn
+
+dependencies:
+  cache_directories:
+    - ~/.cache/yarn    
+
+jobs:
+  test:
+    docker:
+      - image: cimg/node:15.1
+    environment:
+      NX_CLOUD_DISTRIBUTED_EXECUTION: 'true'
+    steps:
+      - checkout
+      - restore_cache:
+          # See the configuration reference documentation for more details on using restore_cache and save_cache steps
+          # https://circleci.com/docs/2.0/configuration-reference/?section=reference#save_cache
+          keys:
+            - yarn-packages-{{ .Branch }}>-{{ checksum "yarn.lock" }}
+      - run:
+          name: Install packages
+          command: yarn install --prefer-offline --frozen-lockfile --non-interactive --cache-folder ~/.cache/yarn
+      - save_cache:
+          key: yarn-packages-{{ .Branch }}>-{{ checksum "yarn.lock" }}
+          paths:
+            - ~/.cache/yarn
+      - run:
+          name: Run Tests
+          command: npx nx affected --target=test
+
+workflows:
+  testing:
+    jobs:
+      - test
