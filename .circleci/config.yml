@@ -51,9 +51,8 @@ jobs:
       - run:
           name: Save successful tag
           when: on_success
-          command: |
-            git tag nx_successful_ci_run__<< pipeline.id >>
-            git push origin --tags
+          shell: "/bin/bash -eo pipefail"
+          command: ./scripts/tag-successful-build.sh << pipeline.id >>
 
 workflows:
   testing:
