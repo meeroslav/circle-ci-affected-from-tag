@@ -1,0 +1,61 @@
+version: 2.1
+
+machine:
+  pre:
+    - mkdir ~/.cache/yarn
+
+dependencies:
+  cache_directories:
+    - ~/.cache/yarn
+
+executors:
+  default-executor:
+      parameters:
+        resource_class:
+          type: string
+          default: medium
+      docker:
+        - image: cimg/node:14.17-browsers
+      working_directory: ~/repo
+
+jobs:
+  test:
+    executor: default-executor
+    environment:
+      NX_CLOUD_DISTRIBUTED_EXECUTION: 'true'
+    steps:
+      - checkout
+      - restore_cache:
+          # See the configuration reference documentation for more details on using restore_cache and save_cache steps
+          # https://circleci.com/docs/2.0/configuration-reference/?section=reference#save_cache
+          keys:
+            - yarn-packages-{{ .Branch }}>-{{ checksum "yarn.lock" }}
+      - run:
+          name: Get Last Sucessful Tag
+          shell: "/bin/bash -eo pipefail"
+          command: |
+            source ./scripts/get-last-successful-tag.sh
+            echo "export AFFECTED_HEAD=\"$BASE_SHA\";" >> $BASH_ENV
+      - run:
+          name: Install packages
+          command: yarn install --prefer-offline --frozen-lockfile --non-interactive --cache-folder ~/.cache/yarn
+      - save_cache:
+          key: yarn-packages-{{ .Branch }}>-{{ checksum "yarn.lock" }}
+          paths:
+            - ~/.cache/yarn
+      - run:
+          name: Run Tests
+          shell: "/bin/bash -eo pipefail"
+          command: |
+            yarn nx affected --target=test --base=$AFFECTED_HEAD
+      - run:
+          name: Save successful tag
+          when: on_success
+          command: |
+            git tag nx_successful_ci_run__<< pipeline.id >>
+            git push origin --tags
+
+workflows:
+  testing:
+    jobs:
+      - test
