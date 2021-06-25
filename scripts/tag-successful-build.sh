@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PIPELINE_ID=$1
+WORKFLOW_ID=$2
 
-git tag nx_successful_ci_run__$PIPELINE_ID
+git tag nx_successful_build__$WORKFLOW_ID
 git push origin --tags
