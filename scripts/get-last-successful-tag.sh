@@ -1,6 +1,6 @@
 #!/bin/bash
 
-TAG=$(git describe --tags `git rev-list --tags --max-count=1` --match="nx_successful_ci_run*" 2> /dev/null)
+TAG=$(git describe --tags --abbrev=0 --match="nx_successful_ci_run*" 2> /dev/null)
 
 if [ -z $TAG ]; then
     echo ""
@@ -11,8 +11,7 @@ if [ -z $TAG ]; then
     TAG="HEAD~1"
 else
     echo ""
-    echo "Successfully found a matching tag"
-    echo "Matching tag: $TAG"
+    echo "Successfully found a matching tag: $TAG"
     echo ""
 fi
 
