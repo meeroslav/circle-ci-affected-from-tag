@@ -52,7 +52,9 @@ jobs:
           name: Run Lint
           shell: '/bin/bash'
           command: |
-            echo $AFFECTED_BASE
+            echo $CIRCLE_WORKFLOW_ID
+            echo $CIRCLE_BRANCH
+            echo $CIRCLE_PULL_REQUEST
             npx nx affected --target=lint --base=$AFFECTED_BASE
 
       - run:
