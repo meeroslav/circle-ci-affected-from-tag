@@ -55,6 +55,7 @@ jobs:
             echo $CIRCLE_WORKFLOW_ID
             echo $CIRCLE_BRANCH
             echo $CIRCLE_PULL_REQUEST
+            echo $CIRCLE_PR_NUMBER
             npx nx affected --target=lint --base=$AFFECTED_BASE
 
       - run:
