@@ -57,7 +57,7 @@ jobs:
           shell: '/bin/bash'
           name: Save successful tag
           command: |
-            ./scripts/tag-successful-build.sh nx_successful_ci_run__$CIRCLE_WORKFLOW_ID__$(date +"%Y-%m-%d-%H%M")-UTC
+            ./scripts/tag-successful-build.sh nx_successful_ci_run__${CIRCLE_WORKFLOW_ID}__$(date +"%Y-%m-%d-%H%M")-UTC
 
 workflows:
   testing:
