@@ -1,11 +1,11 @@
 #!/bin/bash
 
-GITHUB_EVENT_NAME=$1
+BRANCH_NAME=$1
 INPUTS_MAIN_BRANCH_NAME=$2
 INPUTS_TAG_MATCH_PATTERN=$3
 INPUTS_ERROR_ON_NO_MATCHING_TAGS=$4
 
-if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
+if [ "$BRANCH_NAME" = $INPUTS_MAIN_BRANCH_NAME ]; then
     BASE_SHA=$(echo $(git merge-base origin/$INPUTS_MAIN_BRANCH_NAME HEAD))
 else
     # For the base SHA for main builds we use the latest matching tag as a marker for the last commit which was successfully built.
