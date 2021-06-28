@@ -1,6 +1,6 @@
 #!/bin/bash
 
-TAG=$(git describe --tags --abbrev=0 --match="nx_successful_build*" 2> /dev/null)
+TAG=$(git describe --tags --abbrev=0 --match="nx_successful_ci_run__*" 2> /dev/null)
 
 if [ -z $TAG ]; then
     echo ""

@@ -1,6 +1,8 @@
 #!/bin/bash
 
-WORKFLOW_ID=$2
+command_string_to_echo_as_tag_name=$1
 
-git tag nx_successful_build__$WORKFLOW_ID
+echo $command_string_to_echo_as_tag_name
+
+git tag $command_string_to_echo_as_tag_name
 git push origin --tags
