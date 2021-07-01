@@ -54,9 +54,17 @@ jobs:
           command: |
             echo $CIRCLE_WORKFLOW_ID
             echo $CIRCLE_BRANCH
-            echo $CIRCLE_PULL_REQUEST
-            echo $CIRCLE_PR_NUMBER
             npx nx affected --target=lint --base=$AFFECTED_BASE
+            npx nx affected --target=lint --base={{ AFFECTED_BASE }}
+            npx nx affected --target=lint --base=$(echo $AFFECTED_BASE )
+      - run:
+          name: Run Test
+          command: |
+            echo $CIRCLE_WORKFLOW_ID
+            echo $CIRCLE_BRANCH
+            npx nx affected --target=test --base=$AFFECTED_BASE
+            npx nx affected --target=test --base={{ AFFECTED_BASE }}
+            npx nx affected --target=test --base=$(echo $AFFECTED_BASE )
 
       - run:
           when: on_success
