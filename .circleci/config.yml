@@ -50,18 +50,11 @@ jobs:
           command: npm install --prefix=$HOME/.local -g pnpm@6.7.6
       - run:
           name: Run Lint
-          shell: '/bin/bash'
           command: |
-            echo $CIRCLE_WORKFLOW_ID
-            echo $CIRCLE_BRANCH
-            echo $BASE_SHA
             npx nx affected --target=lint --base=$BASE_SHA
       - run:
           name: Run Test
           command: |
-            echo $CIRCLE_WORKFLOW_ID
-            echo $CIRCLE_BRANCH
-            echo $BASE_SHA
             npx nx affected --target=test --base=$BASE_SHA
 
       - run:

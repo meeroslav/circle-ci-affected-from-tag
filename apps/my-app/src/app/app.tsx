@@ -12,7 +12,7 @@ export function App() {
       </header>
       <main>
         {star} is born a {star}!
-        Another change
+        Another change!
       </main>
     </div>
   );
