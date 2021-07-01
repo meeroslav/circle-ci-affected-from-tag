@@ -7,7 +7,7 @@ export function MyLib(props: MyLibProps) {
   return (
     <div>
       <h1>Welcome to my-lib!</h1>
-      <p>This is where we lift off. I am changed completely</p>
+      <p>This is where we lift off. I am changed now</p>
     </div>
   );
 }

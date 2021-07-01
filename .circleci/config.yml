@@ -37,7 +37,7 @@ jobs:
           shell: '/bin/bash'
           command: |
             source ./scripts/get-last-successful-tag.sh $CIRCLE_BRANCH main nx_successful_ci_run__* false
-            echo "export AFFECTED_BASE=\"$BASE_SHA\";" >> $BASH_ENV
+            echo "export BASE_SHA=\"$BASE_SHA\";" >> $BASH_ENV
       - run:
           name: Install packages
           command: yarn install --prefer-offline --frozen-lockfile --non-interactive --cache-folder ~/.cache/yarn
@@ -54,18 +54,15 @@ jobs:
           command: |
             echo $CIRCLE_WORKFLOW_ID
             echo $CIRCLE_BRANCH
-            echo $AFFECTED_BASE
             echo $BASE_SHA
-            npx nx affected --target=lint --base=$AFFECTED_BASE
+            npx nx affected --target=lint --base=$BASE_SHA
       - run:
           name: Run Test
           command: |
             echo $CIRCLE_WORKFLOW_ID
             echo $CIRCLE_BRANCH
-            echo $AFFECTED_BASE
             echo $BASE_SHA
-            npx nx affected --target=test --base=$AFFECTED_BASE
-            npx nx affected --target=test --base=$(echo $AFFECTED_BASE )
+            npx nx affected --target=test --base=$BASE_SHA
 
       - run:
           when: on_success
