@@ -33,29 +33,33 @@ jobs:
           keys:
             - yarn-packages-{{ .Branch }}>-{{ checksum "yarn.lock" }}
       - run:
-          name: Get Last Sucessful Tag
-          shell: '/bin/bash'
+          name: Check what we have
           command: |
-            source ./scripts/get-last-successful-tag.sh $CIRCLE_BRANCH main nx_successful_ci_run__* false
-            echo "export BASE_SHA=\"$BASE_SHA\";" >> $BASH_ENV
-      - run:
-          name: Install packages
-          command: yarn install --prefer-offline --frozen-lockfile --non-interactive --cache-folder ~/.cache/yarn
-      - save_cache:
-          key: yarn-packages-{{ .Branch }}>-{{ checksum "yarn.lock" }}
-          paths:
-            - ~/.cache/yarn
-      - run:
-          name: Install PNPM
-          command: npm install --prefix=$HOME/.local -g pnpm@6.7.6
-      - run:
-          name: Run Lint
-          command: |
-            npx nx affected --target=lint --base=$BASE_SHA
-      - run:
-          name: Run Test
-          command: |
-            npx nx affected --target=test --base=$BASE_SHA
+            source ./scripts/dummy-run.sh << pipeline.project.git_url >> $CIRCLE_PROJECT_REPONAME $CIRCLE_REPOSITORY_URL
+      # - run:
+      #     name: Get Last Sucessful Tag
+      #     shell: '/bin/bash'
+      #     command: |
+      #       source ./scripts/get-last-successful-tag.sh $CIRCLE_BRANCH main nx_successful_ci_run__* false
+      #       echo "export BASE_SHA=\"$BASE_SHA\";" >> $BASH_ENV
+      # - run:
+      #     name: Install packages
+      #     command: yarn install --prefer-offline --frozen-lockfile --non-interactive --cache-folder ~/.cache/yarn
+      # - save_cache:
+      #     key: yarn-packages-{{ .Branch }}>-{{ checksum "yarn.lock" }}
+      #     paths:
+      #       - ~/.cache/yarn
+      # - run:
+      #     name: Install PNPM
+      #     command: npm install --prefix=$HOME/.local -g pnpm@6.7.6
+      # - run:
+      #     name: Run Lint
+      #     command: |
+      #       npx nx affected --target=lint --base=$BASE_SHA
+      # - run:
+      #     name: Run Test
+      #     command: |
+      #       npx nx affected --target=test --base=$BASE_SHA
 
       - run:
           when: on_success

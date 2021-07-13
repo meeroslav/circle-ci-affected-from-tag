@@ -8,6 +8,7 @@
       "dependencies": "*",
       "devDependencies": "*"
     },
+    ".circleci/config.yml": "*",
     ".eslintrc.json": "*"
   },
   "tasksRunnerOptions": {
