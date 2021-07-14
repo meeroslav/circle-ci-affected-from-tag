@@ -11,8 +11,7 @@ let PAGE;
 const URL = `https://circleci.com/api/v2/project/${PROJECT_SLUG}/pipeline?branch=${INPUTS_MAIN_BRANCH_NAME}`;
 
 // return
-return getHttp(URL).then(pipelines => {
-  const { next_page_token, items } = JSON.parse(pipelines);
+return getJson(URL).then(({ next_page_token, items }) => {
   const pipeline = items.find(async ({ id, errors }) => {
     return errors.length === 0 && await isWorkflowSuccessful(id);
   });
@@ -23,7 +22,7 @@ return getHttp(URL).then(pipelines => {
 });
 
 async function isWorkflowSuccessful(pipelineId) {
-  return getHttp(`https://circleci.com/api/v2/pipeline/${pipelineId}/workflow`)
+  return getJson(`https://circleci.com/api/v2/pipeline/${pipelineId}/workflow`)
     .then(({ items }) => items.some(item => item.status === 'success'));
 }
 
@@ -32,7 +31,7 @@ async function isWorkflowSuccessful(pipelineId) {
  * @param {string} url
  * @returns
  */
-async function getHttp(url) {
+async function getJson(url) {
   return new Promise((resolve, reject) => {
     https.get(url, res => {
       let data = [];
@@ -43,7 +42,7 @@ async function getHttp(url) {
 
       res.on('end', () => {
         const response = Buffer.concat(data).toString();
-        resolve(response);
+        resolve(JSON.parse(response));
       });
     }).on('error', error => reject(error));
   });
