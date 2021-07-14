@@ -13,7 +13,7 @@ const URL = `https://circleci.com/api/v2/project/${PROJECT_SLUG}/pipeline?branch
 // return
 return getHttp(URL).then(pipelines => {
   const { next_page_token, items } = JSON.parse(pipelines);
-  const pipeline = items.find(({ id, errors }) => {
+  const pipeline = items.find(async ({ id, errors }) => {
     return errors.length === 0 && await isWorkflowSuccessful(id);
   });
   if (pipeline) {
