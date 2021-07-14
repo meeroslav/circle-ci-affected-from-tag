@@ -18,7 +18,7 @@ return getHttp(URL).then(pipelines => {
   });
   if (pipeline) {
     console.log(1, pipeline.vsc.revision);
-    process.stdout.write(`2, ${pipeline.vsc.revision}`);
+    process.stdout.write(`2, ${pipeline.vcs.revision}`);
   }
 });
 
