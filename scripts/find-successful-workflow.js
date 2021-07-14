@@ -17,7 +17,7 @@ return getHttp(URL).then(pipelines => {
     return errors.length === 0 && await isWorkflowSuccessful(id);
   });
   if (pipeline) {
-    console.log(1, pipeline.vsc.revision);
+    console.log(1, pipeline.vcs.revision);
     process.stdout.write(`2, ${pipeline.vcs.revision}`);
   }
 });
