@@ -2,7 +2,7 @@
 const https = require('https');
 
 const INPUTS_MAIN_BRANCH_NAME = process.argv[0];
-console.log(1, INPUTS_MAIN_BRANCH_NAME);
+console.log(1, process.argv);
 process.stdout.write(INPUTS_MAIN_BRANCH_NAME);
 process.stdout.write('\n');
 
