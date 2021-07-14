@@ -11,10 +11,8 @@ let PAGE;
 
 const URL = `https://circleci.com/api/v2/project/${PROJECT_SLUG}/pipeline?branch=${INPUTS_MAIN_BRANCH_NAME}`;
 
-(async () => {
-  const pipelines = await getHttp(URL);
-  console.log(pipelines);
-})();
+// return
+return getHttp(URL).then(pipelines => console.log(pipelines));
 
 /**
  * Helper function to wrap Https.get as an async call
