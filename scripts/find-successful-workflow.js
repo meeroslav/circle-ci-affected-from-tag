@@ -2,6 +2,7 @@
 const https = require('https');
 
 const INPUTS_MAIN_BRANCH_NAME = process.argv[0];
+console.log(INPUTS_MAIN_BRANCH_NAME);
 // inputs should be in form of: master << pipeline.project.type >> $CIRCLE_PROJECT_USERNAME $CIRCLE_PROJECT_REPONAME>>
 const PROJECT_SLUG = process.argv[1];
 console.log(PROJECT_SLUG);
