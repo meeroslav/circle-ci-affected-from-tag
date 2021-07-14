@@ -13,7 +13,7 @@ else
     # For the base SHA for main builds we use the latest matching tag as a marker for the last commit which was successfully built.
     # We use 2> /dev/null to swallow any direct errors from the command itself so we can provide more useful messaging
     # SHA=$(git describe --tags --abbrev=0 --match="$INPUTS_TAG_MATCH_PATTERN" 2> /dev/null)
-    SHA=$(node find-successful-workflow.js $INPUTS_MAIN_BRANCH_NAME )
+    SHA=$(node scripts/find-successful-workflow.js $INPUTS_MAIN_BRANCH_NAME )
 
     if [ -z $SHA ]; then
         if [ $INPUTS_ERROR_ON_NO_SUCCESSFUL_WORKFLOW = "true" ]; then
