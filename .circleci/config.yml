@@ -33,39 +33,29 @@ jobs:
           keys:
             - yarn-packages-{{ .Branch }}>-{{ checksum "yarn.lock" }}
       - run:
-          name: Check what we have
+          name: Get Last Sucessful Run
           command: |
-            source ./scripts/dummy-run.sh << pipeline.project.type >> $CIRCLE_PROJECT_USERNAME $CIRCLE_PROJECT_REPONAME $CIRCLE_BRANCH
-      # - run:
-      #     name: Get Last Sucessful Tag
-      #     shell: '/bin/bash'
-      #     command: |
-      #       source ./scripts/get-last-successful-tag.sh $CIRCLE_BRANCH main nx_successful_ci_run__* false
-      #       echo "export BASE_SHA=\"$BASE_SHA\";" >> $BASH_ENV
-      # - run:
-      #     name: Install packages
-      #     command: yarn install --prefer-offline --frozen-lockfile --non-interactive --cache-folder ~/.cache/yarn
-      # - save_cache:
-      #     key: yarn-packages-{{ .Branch }}>-{{ checksum "yarn.lock" }}
-      #     paths:
-      #       - ~/.cache/yarn
-      # - run:
-      #     name: Install PNPM
-      #     command: npm install --prefix=$HOME/.local -g pnpm@6.7.6
-      # - run:
-      #     name: Run Lint
-      #     command: |
-      #       npx nx affected --target=lint --base=$BASE_SHA
-      # - run:
-      #     name: Run Test
-      #     command: |
-      #       npx nx affected --target=test --base=$BASE_SHA
-
+            source ./scripts/get-successful-run.sh << pipeline.project.type >> $CIRCLE_PROJECT_USERNAME $CIRCLE_PROJECT_REPONAME $CIRCLE_BRANCH main false
+            echo "export BASE_SHA=\"$BASE_SHA\";" >> $BASH_ENV
+            echo "export HEAD_SHA=\"$HEAD_SHA\";" >> $BASH_ENV
       - run:
-          when: on_success
-          name: Save successful tag
+          name: Install packages
+          command: yarn install --prefer-offline --frozen-lockfile --non-interactive --cache-folder ~/.cache/yarn
+      - save_cache:
+          key: yarn-packages-{{ .Branch }}>-{{ checksum "yarn.lock" }}
+          paths:
+            - ~/.cache/yarn
+      - run:
+          name: Install PNPM
+          command: npm install --prefix=$HOME/.local -g pnpm@6.7.6
+      - run:
+          name: Run Lint
           command: |
-            ./scripts/tag-successful-build.sh nx_successful_ci_run__${CIRCLE_WORKFLOW_ID} nx_successful_ci_run__*
+            npx nx affected --target=lint --base=$BASE_SHA
+      - run:
+          name: Run Test
+          command: |
+            npx nx affected --target=test --base=$BASE_SHA
 
 workflows:
   testing:

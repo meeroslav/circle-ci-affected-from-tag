@@ -1,8 +1,9 @@
 #!/bin/bash
 
-BRANCH_NAME=$1
-INPUTS_MAIN_BRANCH_NAME=$2
-INPUTS_ERROR_ON_NO_SUCCESSFUL_WORKFLOW=$3
+PROJECT_SLUG="$1/$2/$3"
+BRANCH_NAME=$4
+INPUTS_MAIN_BRANCH_NAME=$5
+INPUTS_ERROR_ON_NO_SUCCESSFUL_WORKFLOW=$6
 
 if [ "$BRANCH_NAME" != $INPUTS_MAIN_BRANCH_NAME ]; then
     BASE_SHA=$(echo $(git merge-base origin/$INPUTS_MAIN_BRANCH_NAME HEAD))
@@ -10,12 +11,11 @@ if [ "$BRANCH_NAME" != $INPUTS_MAIN_BRANCH_NAME ]; then
     echo "Branch found. Using base from 'origin/$INPUTS_MAIN_BRANCH_NAME': $BASE_SHA"
     echo ""
 else
-    # For the base SHA for main builds we use the latest matching tag as a marker for the last commit which was successfully built.
-    # We use 2> /dev/null to swallow any direct errors from the command itself so we can provide more useful messaging
-    # SHA=$(git describe --tags --abbrev=0 --match="$INPUTS_TAG_MATCH_PATTERN" 2> /dev/null)
-    SHA=$(node scripts/find-successful-workflow.js $INPUTS_MAIN_BRANCH_NAME )
+    # We will make an https request to CircleCI API getting all the pipelines from the $INPUTS_MAIN_BRANCH_NAME on $PROJECT_SLUG
+    # For each pipeline we check if it was successful and whether the commit still exists
+    BASE_SHA=$(node scripts/find-successful-workflow.js $INPUTS_MAIN_BRANCH_NAME $PROJECT_SLUG )
 
-    if [ -z $SHA ]; then
+    if [ -z $BASE_SHA ]; then
         if [ $INPUTS_ERROR_ON_NO_SUCCESSFUL_WORKFLOW = "true" ]; then
             echo ""
             echo "ERROR: Unable to find a successful workflow run on 'origin/$INPUTS_MAIN_BRANCH_NAME'"
@@ -42,13 +42,11 @@ else
         fi
     else
         echo ""
-        echo "Commit found for the last successful workflow run on 'origin/$INPUTS_MAIN_BRANCH_NAME'"
+        echo "Found the last successful workflow run on 'origin/$INPUTS_MAIN_BRANCH_NAME'"
         echo ""
-        echo "Commit found: $SHA"
+        echo "Commit: $BASE_SHA"
         echo ""
     fi
-
-    BASE_SHA=$(echo $(git rev-parse $SHA~0))
 fi
 
 HEAD_SHA=$(git rev-parse HEAD)

@@ -1,38 +1,93 @@
 #!/usr/bin/env node
+const { spawnSync, execSync } = require('child_process');
 const https = require('https');
 
 // first two argument params are node and script
 const INPUTS_MAIN_BRANCH_NAME = process.argv[2];
 const PROJECT_SLUG = process.argv[3];
-
-let PAGE;
-// const URL = `https://circleci.com/api/v2/project/${PROJECT_SLUG}/pipeline?branch=${INPUTS_MAIN_BRANCH_NAME}&page-token=${PAGE}`;
-
 const URL = `https://circleci.com/api/v2/project/${PROJECT_SLUG}/pipeline?branch=${INPUTS_MAIN_BRANCH_NAME}`;
 
-// return
-return getHttp(URL).then(pipelines => {
-  const { next_page_token, items } = JSON.parse(pipelines);
-  const pipeline = items.find(async ({ id, errors }) => {
-    return errors.length === 0 && await isWorkflowSuccessful(id);
-  });
-  if (pipeline) {
-    console.log(1, pipeline.vsc.revision);
-    process.stdout.write(`2, ${pipeline.vcs.revision}`);
-  }
-});
+/**
+ * Main run cycle
+ */
+(async () => {
+  let nextPage;
+  let foundSHA;
 
+  do {
+    const { next_page_token, sha } = await findSha(nextPage);
+    foundSHA = sha;
+    nextPage = next_page_token;
+  } while (!foundSHA && nextPage);
+
+  if (foundSHA) {
+    // send it to parent process
+    process.stdout.write(foundSHA);
+  }
+})();
+
+/**
+ * Finds the last successful commit and or token for the next page
+ * @param {string} pageToken
+ * @returns { next_page_token?: string, sha?: string }
+ */
+async function findSha(pageToken) {
+  return getJson(pageToken ? `${URL}&page-token=${pageToken}` : URL)
+    .then(async ({ next_page_token, items }) => {
+      const pipeline = await findSuccessfulPipeline(items);
+      return {
+        next_page_token,
+        sha: pipeline ? pipeline.vcs.revision : void 0
+      };
+    });
+}
+
+/**
+ * Get first successful pipeline if any exists
+ * @param {Object[]} pipelines
+ * @returns
+ */
+async function findSuccessfulPipeline(pipelines) {
+  for (const pipeline of pipelines) {
+    if (!pipeline.errors.length
+      && commitExists(pipeline.vcs.revision)
+      && await isWorkflowSuccessful(pipeline.id)) {
+      return pipeline;
+    }
+  }
+  return undefined;
+}
+
+/**
+ * Check if given commit is valid
+ * @param {string} commitSha
+ * @returns
+ */
+function commitExists(commitSha) {
+  try {
+    execSync(`git cat-file -e ${commitSha} 2> /dev/null`);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ *
+ * @param {string} pipelineId
+ * @returns {boolean}
+ */
 async function isWorkflowSuccessful(pipelineId) {
-  return getHttp(`https://circleci.com/api/v2/pipeline/${pipelineId}/workflow`)
+  return getJson(`https://circleci.com/api/v2/pipeline/${pipelineId}/workflow`)
     .then(({ items }) => items.some(item => item.status === 'success'));
 }
 
 /**
  * Helper function to wrap Https.get as an async call
  * @param {string} url
- * @returns
+ * @returns {Promise<JSON>}
  */
-async function getHttp(url) {
+async function getJson(url) {
   return new Promise((resolve, reject) => {
     https.get(url, res => {
       let data = [];
@@ -43,7 +98,7 @@ async function getHttp(url) {
 
       res.on('end', () => {
         const response = Buffer.concat(data).toString();
-        resolve(response);
+        resolve(JSON.parse(response));
       });
     }).on('error', error => reject(error));
   });
