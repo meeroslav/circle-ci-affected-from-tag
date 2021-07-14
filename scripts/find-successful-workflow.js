@@ -7,12 +7,14 @@ const PROJECT_SLUG = process.argv[1];
 console.log(PROJECT_SLUG);
 
 let PAGE;
+// const URL = `https://circleci.com/api/v2/project/${PROJECT_SLUG}/pipeline?branch=${INPUTS_MAIN_BRANCH_NAME}&page-token=${PAGE}`;
 
-const URL = `https://circleci.com/api/v2/project/${PROJECT_SLUG}/pipeline?branch=${INPUTS_MAIN_BRANCH_NAME}&page-token=${PAGE}`;
+const URL = `https://circleci.com/api/v2/project/${PROJECT_SLUG}/pipeline?branch=${INPUTS_MAIN_BRANCH_NAME}`;
 
-const pipelines = await getHttp(URL);
-console.log(pipelines);
-return undefined;
+(async () => {
+  const pipelines = await getHttp(URL);
+  console.log(pipelines);
+})();
 
 /**
  * Helper function to wrap Https.get as an async call
@@ -20,7 +22,7 @@ return undefined;
  * @returns
  */
 async function getHttp(url) {
-  return await new Promise((resolve, reject) => {
+  return new Promise((resolve, reject) => {
     https.get(url, res => {
       let data = [];
 
