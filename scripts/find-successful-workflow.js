@@ -1,21 +1,16 @@
 #!/usr/bin/env node
 const https = require('https');
 
-const INPUTS_MAIN_BRANCH_NAME = process.argv[0];
-console.log(1, process.argv);
-process.stdout.write(INPUTS_MAIN_BRANCH_NAME);
-process.stdout.write('\n');
-
+// first two argument params are node and script
+const INPUTS_MAIN_BRANCH_NAME = process.argv[2];
 // inputs should be in form of: master << pipeline.project.type >> $CIRCLE_PROJECT_USERNAME $CIRCLE_PROJECT_REPONAME>>
-const PROJECT_SLUG = process.argv[1];
-console.log(2, PROJECT_SLUG);
-process.stdout.write(PROJECT_SLUG);
-process.stdout.write('\n');
+const PROJECT_SLUG = process.argv[3];
 
 let PAGE;
 // const URL = `https://circleci.com/api/v2/project/${PROJECT_SLUG}/pipeline?branch=${INPUTS_MAIN_BRANCH_NAME}&page-token=${PAGE}`;
 
 const URL = `https://circleci.com/api/v2/project/${PROJECT_SLUG}/pipeline?branch=${INPUTS_MAIN_BRANCH_NAME}`;
+process.stdout.write(URL);
 
 // return
 return getHttp(URL).then(pipelines => console.log(pipelines));
