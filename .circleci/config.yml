@@ -35,7 +35,7 @@ jobs:
       - run:
           name: Check what we have
           command: |
-            source ./scripts/dummy-run.sh << pipeline.project.type >> $CIRCLE_PROJECT_USERNAME $CIRCLE_PROJECT_REPONAME
+            source ./scripts/dummy-run.sh << pipeline.project.type >> $CIRCLE_PROJECT_USERNAME $CIRCLE_PROJECT_REPONAME $CIRCLE_BRANCH
       # - run:
       #     name: Get Last Sucessful Tag
       #     shell: '/bin/bash'

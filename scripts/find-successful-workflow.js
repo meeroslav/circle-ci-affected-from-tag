@@ -2,15 +2,17 @@
 const https = require('https');
 
 const INPUTS_MAIN_BRANCH_NAME = process.argv[0];
-const INPUTS_PROJECT = process.argv[1];
+// inputs should be in form of: master << pipeline.project.type >> $CIRCLE_PROJECT_USERNAME $CIRCLE_PROJECT_REPONAME>>
+const PROJECT_SLUG = process.argv[1];
+console.log(PROJECT_SLUG);
 
 let PAGE;
 
-// const URL = `https://circleci.com/api/v2/project/gh/CircleCI-Public/api-preview-docs/pipeline?branch=${INPUTS_MAIN_BRANCH_NAME}&page-token=${PAGE}`;
-const URL = `https://circleci.com/api/v2/project/gh/nrwl/nx/pipeline?branch=${INPUTS_MAIN_BRANCH_NAME}&page-token=${PAGE}`;
+const URL = `https://circleci.com/api/v2/project/${PROJECT_SLUG}/pipeline?branch=${INPUTS_MAIN_BRANCH_NAME}&page-token=${PAGE}`;
 
 const pipelines = await getHttp(URL);
 console.log(pipelines);
+return undefined;
 
 /**
  * Helper function to wrap Https.get as an async call
