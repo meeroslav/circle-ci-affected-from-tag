@@ -2,10 +2,15 @@
 const https = require('https');
 
 const INPUTS_MAIN_BRANCH_NAME = process.argv[0];
-console.log(INPUTS_MAIN_BRANCH_NAME);
+console.log(1, INPUTS_MAIN_BRANCH_NAME);
+process.stdout.write(INPUTS_MAIN_BRANCH_NAME);
+process.stdout.write('\n');
+
 // inputs should be in form of: master << pipeline.project.type >> $CIRCLE_PROJECT_USERNAME $CIRCLE_PROJECT_REPONAME>>
 const PROJECT_SLUG = process.argv[1];
-console.log(PROJECT_SLUG);
+console.log(2, PROJECT_SLUG);
+process.stdout.write(PROJECT_SLUG);
+process.stdout.write('\n');
 
 let PAGE;
 // const URL = `https://circleci.com/api/v2/project/${PROJECT_SLUG}/pipeline?branch=${INPUTS_MAIN_BRANCH_NAME}&page-token=${PAGE}`;
