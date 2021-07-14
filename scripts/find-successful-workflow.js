@@ -6,7 +6,6 @@ const INPUTS_MAIN_BRANCH_NAME = process.argv[2];
 const PROJECT_SLUG = process.argv[3];
 const URL = `https://circleci.com/api/v2/project/${PROJECT_SLUG}/pipeline?branch=${INPUTS_MAIN_BRANCH_NAME}`;
 
-console.log('before');
 (async () => {
   let nextPage;
   let foundSHA;
@@ -24,7 +23,7 @@ console.log('before');
   } else {
     console.log('NOT FOUND');
   }
-});
+})();
 
 /**
  * Finds the last successful commit and or token for the next page
