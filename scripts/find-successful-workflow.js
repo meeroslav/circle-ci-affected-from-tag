@@ -79,7 +79,7 @@ function commitExists(commitSha) {
  */
 async function isWorkflowSuccessful(pipelineId) {
   return getJson(`https://circleci.com/api/v2/pipeline/${pipelineId}/workflow`)
-    .then(({ items }) => items.some(item => item.status === 'success'));
+    .then(({ items }) => items.every(item => item.status === 'success'));
 }
 
 /**
