@@ -32,12 +32,18 @@ jobs:
       - name: Install packages
         run: yarn install --prefer-offline --non-interactive
 
-      - name: Set base and head SHAs used for nx affected
+      - name: Set base and head SHAs used for nx affected (inner)
+        uses: ./.github/actions/nx-set-shas
+        id: last_successful_commit
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set base and head SHAs used for nx affected (outer)
         id: setSHAs
         shell: bash
-        run: ./scripts/circleci/get-successful-github-run.sh ${{ secrets.GITHUB_TOKEN }} '${{ github.event_name }}' main false
+        run: ./scripts/circleci/get-successful-github-run.sh ${{ secrets.GITHUB_TOKEN }} ${{ github.event_name }} main false
 
-      - name: Run Lint
-        run: yarn nx affected --target=lint
-      - name: Run Test
-        run: yarn nx affected --target=test
+      # - name: Run Lint
+      #   run: yarn nx affected --target=lint
+      # - name: Run Test
+      #   run: yarn nx affected --target=test
