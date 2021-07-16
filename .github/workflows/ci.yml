@@ -35,7 +35,7 @@ jobs:
       - name: Set base and head SHAs used for nx affected
         id: setSHAs
         shell: bash
-        run: ./scripts/circleci/get-successful-run.sh '${{ github.event_name }}' main false
+        run: ./scripts/circleci/get-successful-github-run.sh '${{ github.event_name }}' main false
 
       - name: Run Lint
         run: yarn nx affected --target=lint
