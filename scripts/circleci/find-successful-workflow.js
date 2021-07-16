@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-const { spawnSync, execSync } = require('child_process');
+const { execSync } = require('child_process');
 const https = require('https');
 
 // first two argument params are node and script
