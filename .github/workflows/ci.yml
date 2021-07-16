@@ -42,7 +42,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # - name: Run Lint
-      #   run: yarn nx affected --target=lint
-      # - name: Run Test
-      #   run: yarn nx affected --target=test
+      - name: Run Lint
+        run: yarn nx affected --target=lint --base=${{ steps.last_successful_commit.outputs.BASE_SHA }}
+      - name: Run Test
+        run: yarn nx affected --target=test --base=${{ steps.last_successful_commit.outputs.BASE_SHA }}
