@@ -13,6 +13,8 @@ inputs:
   workflow-id:
     description: 'The ID of the workflow to track or name of the file name. E.g. ci.yml'
     required: true
+  GITHUB_TOKEN:
+    description: 'The github token needed to provide access to APIs. Can be also provided as env variable.'
 
 outputs:
   base:
