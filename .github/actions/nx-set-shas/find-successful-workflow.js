@@ -5,6 +5,7 @@ const workflow_id = process.argv[3];
 const branch = process.argv[4];
 const [owner, repo] = process.env.GITHUB_REPOSITORY.split("/");
 
+process.stdout.write('TEST1');
 (async () => {
   try {
     const octokit = new Octokit();
@@ -18,7 +19,20 @@ const [owner, repo] = process.env.GITHUB_REPOSITORY.split("/");
       status: 'completed',
       conclusion: 'success'
     });
+    process.stdout.write('TEST2');
     process.stdout.write(workflow_runs);
+
+    const response = await octokit.request(`GET /repos/${owner}/${repo}/actions/workflows/${workflow_id}/runs`, {
+      owner,
+      repo,
+      branch,
+      workflow_id,
+      event: 'push',
+      status: 'completed',
+      conclusion: 'success'
+    });
+    process.stdout.write('TEST3');
+    process.stdout.write(response);
 
     // octokit.actions.listWorkflowRuns({
     //   owner,
