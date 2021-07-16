@@ -39,8 +39,8 @@ jobs:
         id: last_successful_commit
         with:
           workflow-id: 'ci.yml'
-        # env:
-        #   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run Lint
         run: yarn nx affected --target=lint --base=${{ steps.last_successful_commit.outputs.BASE_SHA }}
