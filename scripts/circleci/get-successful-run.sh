@@ -13,7 +13,7 @@ if [ "$BRANCH_NAME" != $INPUTS_MAIN_BRANCH_NAME ]; then
 else
     # We will make an https request to CircleCI API getting all the pipelines from the $INPUTS_MAIN_BRANCH_NAME on $PROJECT_SLUG
     # For each pipeline we check if it was successful and whether the commit still exists
-    BASE_SHA=$(node scripts/find-successful-workflow.js $INPUTS_MAIN_BRANCH_NAME $PROJECT_SLUG )
+    BASE_SHA=$(node scripts/circleci/find-successful-workflow.js $INPUTS_MAIN_BRANCH_NAME $PROJECT_SLUG )
 
     if [ -z $BASE_SHA ]; then
         if [ $INPUTS_ERROR_ON_NO_SUCCESSFUL_WORKFLOW = "true" ]; then
