@@ -1,70 +1,58 @@
 const { Octokit } = require("@octokit/action");
+const core = require("@actions/core");
 const { execSync } = require('child_process');
 
-const workflow_id = process.argv[3];
-const branch = process.argv[4];
+const workflow_id = process.argv[2];
+const branch = process.argv[3];
 const [owner, repo] = process.env.GITHUB_REPOSITORY.split("/");
 
-process.stdout.write('TEST1');
 (async () => {
   try {
     const octokit = new Octokit();
     // fetch all workflow runs on a given repo/branch/workflow with push and success
-    const { workflow_runs } = await octokit.request(`GET /repos/${owner}/${repo}/actions/workflows/${workflow_id}/runs`, {
+    const shas = await octokit.request(`GET /repos/${owner}/${repo}/actions/workflows/${workflow_id}/runs`, {
       owner,
       repo,
       branch,
       workflow_id,
       event: 'push',
-      status: 'completed',
-      conclusion: 'success'
-    });
-    process.stdout.write('TEST2');
-    process.stdout.write(workflow_runs);
+      status: 'success'
+    }).then(({ data: { workflow_runs } }) => workflow_runs.map(run => run.head_sha));
 
-    const response = await octokit.request(`GET /repos/${owner}/${repo}/actions/workflows/${workflow_id}/runs`, {
-      owner,
-      repo,
-      branch,
-      workflow_id,
-      event: 'push',
-      status: 'completed',
-      conclusion: 'success'
-    });
-    process.stdout.write('TEST3');
-    process.stdout.write(response);
+    const sha = await findExistingCommit(shas);
 
-    // octokit.actions.listWorkflowRuns({
-    //   owner,
-    //   repo,
-    //   branch,
-    //   workflow_id,
-    //   event: 'push',
-    //   status: 'success'
-    // }).then(({ data }) => {
-    //   console.log(data);
-
-    //   const sha = data.workflow_runs
-    //     .map(run => run.head_sha)
-    //     .find(commitSha => commitExists(commitSha));
-
-    //   console.log(sha);
-    // });
-  } catch {
-    // we don't want to report anything here just silently break
+    console.log(sha);
+  } catch (e) {
+    core.setFailed(e.message);
+    process.exit(1);
   }
 })();
 
 /**
+ * Get first existing commit
+ * @param {string[]} commit_shas
+ * @returns {string?}
+ */
+async function findExistingCommit(shas) {
+  for (const commitSha of shas) {
+    if (await commitExists(commitSha)) {
+      return commitSha;
+    }
+  }
+  return undefined;
+}
+
+/**
  * Check if given commit is valid
  * @param {string} commitSha
- * @returns
+ * @returns {boolean}
  */
-function commitExists(commitSha) {
+async function commitExists(commitSha) {
   try {
     execSync(`git cat-file -e ${commitSha} 2> /dev/null`);
     return true;
-  } catch {
+  } catch (e) {
+    console.log('Not found', commitSha, e);
     return false;
   }
 }
