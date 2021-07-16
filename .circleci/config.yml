@@ -35,7 +35,7 @@ jobs:
       - run:
           name: Get Last Sucessful Run
           command: |
-            source ./scripts/get-successful-run.sh << pipeline.project.type >> $CIRCLE_PROJECT_USERNAME $CIRCLE_PROJECT_REPONAME $CIRCLE_BRANCH main false
+            source ./scripts/get-successful-run.sh << pipeline.project.type >> $CIRCLE_PROJECT_USERNAME $CIRCLE_PROJECT_REPONAME $CIRCLE_BRANCH main 'cho'
             echo "export BASE_SHA=\"$BASE_SHA\";" >> $BASH_ENV
             echo "export HEAD_SHA=\"$HEAD_SHA\";" >> $BASH_ENV
       - run:
