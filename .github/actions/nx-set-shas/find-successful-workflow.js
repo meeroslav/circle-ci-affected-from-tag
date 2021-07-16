@@ -18,7 +18,7 @@ const [owner, repo] = process.env.GITHUB_REPOSITORY.split("/");
       status: 'completed',
       conclusion: 'success'
     });
-    console.log(workflow_runs);
+    process.stdout.write(workflow_runs);
 
     // octokit.actions.listWorkflowRuns({
     //   owner,

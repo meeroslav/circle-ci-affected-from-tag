@@ -40,11 +40,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Set base and head SHAs used for nx affected (outer)
-        id: setSHAs
-        shell: bash
-        run: ./scripts/circleci/get-successful-github-run.sh ${{ secrets.GITHUB_TOKEN }} ${{ github.event_name }} main false
-
       # - name: Run Lint
       #   run: yarn nx affected --target=lint
       # - name: Run Test
