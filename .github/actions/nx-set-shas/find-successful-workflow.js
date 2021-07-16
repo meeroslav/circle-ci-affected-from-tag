@@ -20,7 +20,6 @@ const [owner, repo] = process.env.GITHUB_REPOSITORY.split("/");
     }).then(({ data: { workflow_runs } }) => workflow_runs.map(run => run.head_sha));
 
     const sha = await findExistingCommit(shas);
-
     console.log(sha);
   } catch (e) {
     core.setFailed(e.message);
@@ -51,8 +50,7 @@ async function commitExists(commitSha) {
   try {
     execSync(`git cat-file -e ${commitSha} 2> /dev/null`);
     return true;
-  } catch (e) {
-    console.log('Not found', commitSha, e);
+  } catch {
     return false;
   }
 }
