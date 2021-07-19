@@ -30,7 +30,7 @@ runs:
       shell: bash
       run: |
         echo "$GITHUB_WORKFLOW : $GITHUB_EVENT_NAME : $GITHUB_EVENT_PATH"
-        echo "$GITHUB_WORKFLOW_ID ${{ github.workflow_id }}"
+        echo "${{ github.action_path }} - ${{ github.action }} - ${{ github.job }} - ${{ github.workflow }}"
         ${{ github.action_path }}/run.sh '${{ inputs.workflow-id }}' '${{ github.event_name }}' '${{ inputs.main-branch-name }}' '${{ inputs.error-on-no-successful-workflow }}'
 
     - name: Log base and head SHAs used for nx affected
