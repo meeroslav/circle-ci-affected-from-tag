@@ -39,8 +39,6 @@ jobs:
         id: setSHAs
         with:
           workflow-id: 'ci.yml'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run Lint
         run: yarn nx affected --target=lint --base=${{ steps.setSHAs.outputs.base }}

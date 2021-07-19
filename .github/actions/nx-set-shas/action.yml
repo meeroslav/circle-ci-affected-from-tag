@@ -29,7 +29,7 @@ runs:
       id: setSHAs
       shell: bash
       run: |
-        ${{ github.action_path }}/run.sh ${{ github.event_name }} ${{ inputs.main-branch-name }} ${{ inputs.error-on-no-successful-workflow }} ${{ inputs.workflow-id }}
+        ${{ github.action_path }}/run.sh ${{ github.token }} ${{ github.event_name }} ${{ inputs.main-branch-name }} ${{ inputs.error-on-no-successful-workflow }} ${{ inputs.workflow-id }}
 
     - name: Log base and head SHAs used for nx affected
       shell: bash
