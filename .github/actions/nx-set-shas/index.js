@@ -13,8 +13,6 @@ let BASE_SHA;
 (async () => {
   const HEAD_SHA = execSync(`git rev-parse HEAD`, { encoding: 'utf-8' });
 
-  console.log('ARE THEY HERE?', mainBranchName, errorOnNoSuccessfulWorkflow, workflowId);
-
   if (eventName === 'pull_request') {
     BASE_SHA = execSync(`git merge-base origin/${mainBranchName} HEAD`, { encoding: 'utf-8' });
   } else {
@@ -22,25 +20,26 @@ let BASE_SHA;
       BASE_SHA = await findSuccessfulCommit(workflowId, runId, owner, repo, mainBranchName);
     } catch (e) {
       core.setFailed(e.message);
-      process.exit(1);
+      return;
     }
 
     if (!BASE_SHA) {
-      if (errorOnNoSuccessfulWorkflow) {
+      if (errorOnNoSuccessfulWorkflow === 'true') {
         reportFailure(mainBranchName);
-        process.exit(1);
+        return;
       } else {
-        process.stdout.write(`WARNING: Unable to find a successful workflow run on 'origin ${mainBranchName}'`);
-        process.stdout.write(`We are therefore defaulting to use HEAD~1 on 'origin ${mainBranchName}'`);
-        process.stdout.write('');
-        process.stdout.write(`NOTE: You can instead make this a hard error by settting 'error-on-no-successful-workflow' on the action in your workflow.`);
+        process.stdout.write('\n');
+        process.stdout.write(`WARNING: Unable to find a successful workflow run on 'origin/${mainBranchName}'\n`);
+        process.stdout.write(`We are therefore defaulting to use HEAD~1 on 'origin/${mainBranchName}'\n`);
+        process.stdout.write('\n');
+        process.stdout.write(`NOTE: You can instead make this a hard error by settting 'error-on-no-successful-workflow' on the action in your workflow.\n`);
 
         BASE_SHA = execSync(`git rev-parse HEAD~1`, { encoding: 'utf-8' });
       }
     } else {
-      process.stdout.write('');
-      process.stdout.write(`Found the last successful workflow run on 'origin ${mainBranchName}'`);
-      process.stdout.write(`Commit: ${BASE_SHA}`);
+      process.stdout.write('\n');
+      process.stdout.write(`Found the last successful workflow run on 'origin/${mainBranchName}'\n`);
+      process.stdout.write(`Commit: ${BASE_SHA}\n`);
     }
   }
   core.setOutput('base', BASE_SHA);
@@ -49,14 +48,12 @@ let BASE_SHA;
 
 function reportFailure(branchName) {
   core.setFailed(`
-ERROR: Unable to find a successful workflow run on 'origin ${branchName}'
+    Unable to find a successful workflow run on 'origin/${branchName}'
+    NOTE: You have set 'error-on-no-successful-workflow' on the action so this is a hard error.
 
-NOTE: You have set 'error-on-no-successful-workflow' on the action so this is a hard error.
-
-Is it possible that you have no runs currently on 'origin ${branchName}'?
-- If yes, then you should run the workflow without this flag first.
-- If no, then you might have changed your git history and those commits no longer exist.
-`);
+    Is it possible that you have no runs currently on 'origin/${branchName}'?
+    - If yes, then you should run the workflow without this flag first.
+    - If no, then you might have changed your git history and those commits no longer exist.`);
 }
 
 /**
