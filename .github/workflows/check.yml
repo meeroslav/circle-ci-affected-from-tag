@@ -35,10 +35,18 @@ jobs:
         run: yarn install --prefer-offline --non-interactive
 
       - name: Set base and head SHAs used for nx affected
-        uses: ./.github/actions/nx-set-shas
+        uses: meeroslav/nx-set-shas@v2
         id: setSHAs
 
-      - name: Run Lint
-        run: yarn nx affected --target=lint --base=${{ steps.setSHAs.outputs.base }}
-      - name: Run Test
-        run: yarn nx affected --target=test --base=${{ steps.setSHAs.outputs.base }}
+      - name: Test values
+        shell: bash
+        run: |
+          echo "BASE: ${{ steps.setSHAs.outputs.base }}"
+          echo "HEAD: ${{ steps.setSHAs.outputs.head }}"
+          echo "BASE: ${{ env.NX_BASE }}"
+          echo "HEAD: ${{ env.NX_HEAD }}"
+
+      # - name: Run Lint
+      #   run: yarn nx affected --target=lint --base=${{ steps.setSHAs.outputs.base }}
+      # - name: Run Test
+      #   run: yarn nx affected --target=test --base=${{ steps.setSHAs.outputs.base }}
