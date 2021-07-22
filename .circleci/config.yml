@@ -51,11 +51,10 @@ jobs:
       - run:
           name: Run Lint
           command: |
-            npx nx affected --target=lint --base=$NX_BASE
-      - run:
-          name: Run Test
-          command: |
-            npx nx affected --target=test --base=$NX_BASE
+            echo "BASE: ${NX_BASE}"
+            echo "HEAD: ${NX_HEAD}"
+            echo "BASE: $NX_BASE"
+            echo "HEAD: $NX_HEAD"
 
 workflows:
   testing:
