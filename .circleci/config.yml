@@ -36,8 +36,8 @@ jobs:
           name: Get Last Sucessful Run
           command: |
             source ./scripts/circleci/get-successful-run.sh << pipeline.project.type >>/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME $CIRCLE_BRANCH main false
-            echo "export BASE_SHA=\"$BASE_SHA\";" >> $BASH_ENV
-            echo "export HEAD_SHA=\"$HEAD_SHA\";" >> $BASH_ENV
+            echo "export NX_BASE=\"$BASE_SHA\";" >> $BASH_ENV
+            echo "export NX_HEAD=\"$HEAD_SHA\";" >> $BASH_ENV
       - run:
           name: Install packages
           command: yarn install --prefer-offline --frozen-lockfile --non-interactive --cache-folder ~/.cache/yarn
@@ -51,11 +51,11 @@ jobs:
       - run:
           name: Run Lint
           command: |
-            npx nx affected --target=lint --base=$BASE_SHA
+            npx nx affected --target=lint --base=$NX_BASE
       - run:
           name: Run Test
           command: |
-            npx nx affected --target=test --base=$BASE_SHA
+            npx nx affected --target=test --base=$NX_BASE
 
 workflows:
   testing:
