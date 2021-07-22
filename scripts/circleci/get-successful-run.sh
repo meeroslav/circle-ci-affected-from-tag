@@ -1,15 +1,12 @@
 #!/bin/bash
 
-PROJECT_SLUG="$1/$2/$3"
-BRANCH_NAME=$4
-INPUTS_MAIN_BRANCH_NAME=$5
-INPUTS_ERROR_ON_NO_SUCCESSFUL_WORKFLOW=$6
+PROJECT_SLUG=$1
+BRANCH_NAME=$2
+INPUTS_MAIN_BRANCH_NAME=$3
+INPUTS_ERROR_ON_NO_SUCCESSFUL_WORKFLOW=$4
 
 if [ "$BRANCH_NAME" != $INPUTS_MAIN_BRANCH_NAME ]; then
     BASE_SHA=$(echo $(git merge-base origin/$INPUTS_MAIN_BRANCH_NAME HEAD))
-    echo ""
-    echo "Branch found. Using base from 'origin/$INPUTS_MAIN_BRANCH_NAME': $BASE_SHA"
-    echo ""
 else
     # We will make an https request to CircleCI API getting all the pipelines from the $INPUTS_MAIN_BRANCH_NAME on $PROJECT_SLUG
     # For each pipeline we check if it was successful and whether the commit still exists
