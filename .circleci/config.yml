@@ -35,7 +35,7 @@ jobs:
       - run:
           name: Set base and head SHAs used for nx affected
           command: |
-            RESPONSE=$(node ./scripts/circleci/find-successful-workflow.js << pipeline.project.type >>/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME $CIRCLE_BRANCH main false)
+            RESPONSE=$(node ./scripts/circleci/find-successful-workflow.js $CIRCLE_BUILD_URL $CIRCLE_BRANCH main false)
             echo "$RESPONSE"
             BASE_SHA=$(echo $RESPONSE | grep 'Commit:' text.txt | sed 's/.*Commit: //')
             HEAD_SHA=$(git rev-parse HEAD)
