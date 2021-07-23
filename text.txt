@@ -1,3 +1,0 @@
-
-Found the last successful workflow run on 'origin/main'.
-      Commit: 8b534f657d178379d5345113afcf181424a8f983
