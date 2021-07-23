@@ -18,7 +18,7 @@ executors:
     working_directory: *working_directory
 
 orbs:
-  nx: nrwl/nx@dev:alpha
+  nx: nrwl/nx@1.0.0
 
 jobs:
   test:
