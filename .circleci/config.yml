@@ -26,33 +26,44 @@ jobs:
       NX_E2E_CI_CACHE_KEY: e2e-circleci-linux-pnpm
     steps:
       - checkout
-      - restore_cache:
-          name: Restore Yarn Package Cache
-          # See the configuration reference documentation for more details on using restore_cache and save_cache steps
-          # https://circleci.com/docs/2.0/configuration-reference/?section=reference#save_cache
-          keys:
-            - yarn-packages-{{ .Branch }}>-{{ checksum "yarn.lock" }}
+      # - restore_cache:
+      #     name: Restore Yarn Package Cache
+      #     # See the configuration reference documentation for more details on using restore_cache and save_cache steps
+      #     # https://circleci.com/docs/2.0/configuration-reference/?section=reference#save_cache
+      #     keys:
+      #       - yarn-packages-{{ .Branch }}>-{{ checksum "yarn.lock" }}
       - run:
-          name: Get Last Sucessful Run
+          name: Set base and head SHAs used for nx affected
           command: |
-            source ./scripts/circleci/get-successful-run.sh << pipeline.project.type >>/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME $CIRCLE_BRANCH main false
+            RESPONSE=$(node ./scripts/circleci/find-successful-workflow.js << pipeline.project.type >>/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME $CIRCLE_BRANCH main false)
+            echo "$RESPONSE"
+            BASE_SHA=$(echo $RESPONSE | grep 'Commit:' text.txt | sed 's/.*Commit: //')
+            HEAD_SHA=$(git rev-parse HEAD)
             echo "export NX_BASE=\"$BASE_SHA\";" >> $BASH_ENV
             echo "export NX_HEAD=\"$HEAD_SHA\";" >> $BASH_ENV
+
       - run:
-          name: Install packages
-          command: yarn install --prefer-offline --frozen-lockfile --non-interactive --cache-folder ~/.cache/yarn
-      - save_cache:
-          key: yarn-packages-{{ .Branch }}>-{{ checksum "yarn.lock" }}
-          paths:
-            - ~/.cache/yarn
-      - run:
-          name: Install PNPM
-          command: npm install --prefix=$HOME/.local -g pnpm@6.7.6
+          name: Log base and head SHAs used for nx affected
+          command: |
+            echo "Base SHA"
+            echo $NX_BASE
+            echo ""
+            echo "Head SHA"
+            echo $NX_HEAD
+            echo ""
+      # - run:
+      #     name: Install packages
+      #     command: yarn install --prefer-offline --frozen-lockfile --non-interactive --cache-folder ~/.cache/yarn
+      # - save_cache:
+      #     key: yarn-packages-{{ .Branch }}>-{{ checksum "yarn.lock" }}
+      #     paths:
+      #       - ~/.cache/yarn
+      # - run:
+      #     name: Install PNPM
+      #     command: npm install --prefix=$HOME/.local -g pnpm@6.7.6
       - run:
           name: Run Lint
           command: |
-            echo "BASE: ${NX_BASE}"
-            echo "HEAD: ${NX_HEAD}"
             echo "BASE: $NX_BASE"
             echo "HEAD: $NX_HEAD"
 
