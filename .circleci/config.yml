@@ -1,8 +1,8 @@
 version: 2.1
 
-# Variables
-var_1: &working_directory ~/repo
-
+# -------------------------
+#        DEFAULTS
+# -------------------------
 machine:
   pre:
     - mkdir ~/.cache/yarn
@@ -11,22 +11,82 @@ dependencies:
   cache_directories:
     - ~/.cache/yarn
 
-executors:
-  default-executor:
-    docker:
-      - image: cimg/node:14.17-browsers
-    working_directory: *working_directory
+defaults: &defaults
+  working_directory: ~/repo
+
+# -------------------------
+#        EXECUTORS
+# -------------------------
 
 orbs:
   nx: nrwl/nx@1.0.0
+  android: circleci/android@1.0.3
+
+executors:
+  linux:
+    <<: *defaults
+    docker:
+      - image: cimg/node:14.17-browsers
+
+  macos:
+    <<: *defaults
+    macos:
+      xcode: &_XCODE_VERSION '12.5.0'
+
+  rmandroid:
+    <<: *defaults
+    docker:
+      - image: reactnativecommunity/react-native-android
+    resource_class: large
+    environment:
+      - ADB_INSTALL_TIMEOUT: 10
+      - _JAVA_OPTIONS: '-Xmx1024m -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap'
+      - GRADLE_OPTS: '-Xmx2014m -Dorg.gradle.daemon=false -Dorg.gradle.jvmargs="-XX:+UnlockExperimentalVMOptions -XX:+HeapDumpOnOutOfMemoryError"'
 
 jobs:
+  android-test:
+    executor: rmandroid
+    steps:
+      - run:
+          name: Check process
+          command: |
+            echo "console.log(process.platform === 'linux' && process.env.ANDROID_HOME && process.env.ANDROID_SDK_ROOT);console.log('In for a treat')" >> "index.js"
+            echo "$(node index.js)"
+        # RESPONSE=$(node index.js)
+        # echo "$RESPONSE"
+  android-test2:
+    executor:
+      name: android/android-machine
+      resource-class: large
+    steps:
+      - run:
+          name: Check process
+          command: |
+            echo "console.log(process.platform === 'linux' && process.env.ANDROID_HOME && process.env.ANDROID_SDK_ROOT);console.log('In for a treat')" >> "index.js"
+            echo "$(node index.js)"
+  ubuntu-test:
+    executor: linux
+    steps:
+      - run:
+          name: Check process
+          command: |
+            echo "console.log(process.platform === 'linux' && process.env.ANDROID_HOME && process.env.ANDROID_SDK_ROOT);console.log('In for a treat')" >> "index.js"
+            echo "$(node index.js)"
+  macos-test:
+    executor: macos
+    steps:
+      - run:
+          name: Check process
+          command: |
+            echo "console.log(process.platform === 'linux' && process.env.ANDROID_HOME && process.env.ANDROID_SDK_ROOT);console.log('In for a treat')" >> "index.js"
+            echo "$(node index.js)"
+
   test:
     parameters:
       workflow_id:
         type: string
         default: 'none'
-    executor: default-executor
+    executor: linux
     environment:
       NX_CLOUD_DISTRIBUTED_EXECUTION: 'false'
       SELECTED_PM: pnpm
@@ -87,5 +147,9 @@ jobs:
 workflows:
   testing:
     jobs:
-      - test:
-          workflow_id: $CIRCLE_WORKFLOW_ID
+      # - test:
+      #     workflow_id: $CIRCLE_WORKFLOW_ID
+      - android-test
+      - android-test2
+      - ubuntu-test
+      - macos-test
