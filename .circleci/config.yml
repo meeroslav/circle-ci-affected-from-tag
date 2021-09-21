@@ -22,20 +22,32 @@ orbs:
 
 jobs:
   test:
+    parameters:
+      workflow_id:
+        type: string
+        default: 'none'
     executor: default-executor
     environment:
       NX_CLOUD_DISTRIBUTED_EXECUTION: 'false'
       SELECTED_PM: pnpm
       NX_E2E_CI_CACHE_KEY: e2e-circleci-linux-pnpm
+      MY_MIX: my-mix-<< parameters.workflow_id >>
     steps:
       - checkout
+      - run:
+          name: Check the value
+          command: |
+            echo "export YOUR_MIX=\"your-mix-<< parameters.workflow_id>>\";" >> $BASH_ENV
+            echo << parameters.workflow_id>>
+            echo $MY_MIX
+            echo $YOUR_MIX
       # - restore_cache:
       #     name: Restore Yarn Package Cache
       #     # See the configuration reference documentation for more details on using restore_cache and save_cache steps
       #     # https://circleci.com/docs/2.0/configuration-reference/?section=reference#save_cache
       #     keys:
       #       - yarn-packages-{{ .Branch }}>-{{ checksum "yarn.lock" }}
-      - nx/set-shas
+      # - nx/set-shas
       # - run:
       #     name: Set base and head SHAs used for nx affected
       #     command: |
@@ -46,15 +58,15 @@ jobs:
       #       echo "export NX_BASE=\"$BASE_SHA\";" >> $BASH_ENV
       #       echo "export NX_HEAD=\"$HEAD_SHA\";" >> $BASH_ENV
 
-      - run:
-          name: Log base and head SHAs used for nx affected
-          command: |
-            echo "Base SHA"
-            echo $NX_BASE
-            echo ""
-            echo "Head SHA"
-            echo $NX_HEAD
-            echo ""
+      # - run:
+      #     name: Log base and head SHAs used for nx affected
+      #     command: |
+      #       echo "Base SHA"
+      #       echo $NX_BASE
+      #       echo ""
+      #       echo "Head SHA"
+      #       echo $NX_HEAD
+      #       echo ""
       # - run:
       #     name: Install packages
       #     command: yarn install --prefer-offline --frozen-lockfile --non-interactive --cache-folder ~/.cache/yarn
@@ -70,8 +82,10 @@ jobs:
           command: |
             echo "BASE: $NX_BASE"
             echo "HEAD: $NX_HEAD"
+            echo "MIX: $YOUR_MIX"
 
 workflows:
   testing:
     jobs:
-      - test
+      - test:
+          workflow_id: $CIRCLE_WORKFLOW_ID
