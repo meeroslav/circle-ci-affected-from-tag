@@ -50,7 +50,6 @@ jobs:
       #       - yarn-packages-{{ .Branch }}>-{{ checksum "yarn.lock" }}
       - nx/set-shas:
           allow-on-hold-workflow: true
-          error-on-no-successful-workflow: false
       # - run:
       #     name: Set base and head SHAs used for nx affected
       #     command: |
