@@ -19,7 +19,7 @@ defaults: &defaults
 # -------------------------
 
 orbs:
-  nx: nrwl/nx@1.0.0
+  nx: nrwl/nx@dev:alpha
   android: circleci/android@1.0.3
 
 executors:
@@ -28,59 +28,7 @@ executors:
     docker:
       - image: cimg/node:14.17-browsers
 
-  macos:
-    <<: *defaults
-    macos:
-      xcode: &_XCODE_VERSION '12.5.0'
-
-  rmandroid:
-    <<: *defaults
-    docker:
-      - image: reactnativecommunity/react-native-android
-    resource_class: large
-    environment:
-      - ADB_INSTALL_TIMEOUT: 10
-      - _JAVA_OPTIONS: '-Xmx1024m -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap'
-      - GRADLE_OPTS: '-Xmx2014m -Dorg.gradle.daemon=false -Dorg.gradle.jvmargs="-XX:+UnlockExperimentalVMOptions -XX:+HeapDumpOnOutOfMemoryError"'
-
 jobs:
-  android-test:
-    executor: rmandroid
-    steps:
-      - run:
-          name: Check process
-          command: |
-            echo "console.log(process.platform === 'linux' && process.env.ANDROID_HOME && process.env.ANDROID_SDK_ROOT);console.log('In for a treat')" >> "index.js"
-            echo "$(node index.js)"
-        # RESPONSE=$(node index.js)
-        # echo "$RESPONSE"
-  android-test2:
-    executor:
-      name: android/android-machine
-      resource-class: large
-    steps:
-      - run:
-          name: Check process
-          command: |
-            echo "console.log(process.platform === 'linux' && process.env.ANDROID_HOME && process.env.ANDROID_SDK_ROOT);console.log('In for a treat')" >> "index.js"
-            echo "$(node index.js)"
-  ubuntu-test:
-    executor: linux
-    steps:
-      - run:
-          name: Check process
-          command: |
-            echo "console.log(process.platform === 'linux' && process.env.ANDROID_HOME && process.env.ANDROID_SDK_ROOT);console.log('In for a treat')" >> "index.js"
-            echo "$(node index.js)"
-  macos-test:
-    executor: macos
-    steps:
-      - run:
-          name: Check process
-          command: |
-            echo "console.log(process.platform === 'linux' && process.env.ANDROID_HOME && process.env.ANDROID_SDK_ROOT);console.log('In for a treat')" >> "index.js"
-            echo "$(node index.js)"
-
   test:
     parameters:
       workflow_id:
@@ -94,20 +42,13 @@ jobs:
       MY_MIX: my-mix-<< parameters.workflow_id >>
     steps:
       - checkout
-      - run:
-          name: Check the value
-          command: |
-            echo "export YOUR_MIX=\"your-mix-<< parameters.workflow_id>>\";" >> $BASH_ENV
-            echo << parameters.workflow_id>>
-            echo $MY_MIX
-            echo $YOUR_MIX
       # - restore_cache:
       #     name: Restore Yarn Package Cache
       #     # See the configuration reference documentation for more details on using restore_cache and save_cache steps
       #     # https://circleci.com/docs/2.0/configuration-reference/?section=reference#save_cache
       #     keys:
       #       - yarn-packages-{{ .Branch }}>-{{ checksum "yarn.lock" }}
-      # - nx/set-shas
+      - nx/set-shas
       # - run:
       #     name: Set base and head SHAs used for nx affected
       #     command: |
@@ -137,19 +78,15 @@ jobs:
       # - run:
       #     name: Install PNPM
       #     command: npm install --prefix=$HOME/.local -g pnpm@6.7.6
-      - run:
-          name: Run Lint
-          command: |
-            echo "BASE: $NX_BASE"
-            echo "HEAD: $NX_HEAD"
-            echo "MIX: $YOUR_MIX"
+      # - run:
+      #     name: Run Lint
+      #     command: |
+      #       echo "BASE: $NX_BASE"
+      #       echo "HEAD: $NX_HEAD"
+      #       echo "MIX: $YOUR_MIX"
 
 workflows:
   testing:
     jobs:
-      # - test:
+      - test
       #     workflow_id: $CIRCLE_WORKFLOW_ID
-      - android-test
-      - android-test2
-      - ubuntu-test
-      - macos-test
