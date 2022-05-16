@@ -11,7 +11,9 @@ let BASE_SHA;
 (async () => {
   // If it's PR we want to compare to branch base
   if (branchName !== mainBranchName) {
-    BASE_SHA = execSync(`git merge-base origin/${mainBranchName} HEAD`, { encoding: 'utf-8' });
+    BASE_SHA = execSync(`git merge-base origin/${mainBranchName} HEAD`, {
+      encoding: 'utf-8',
+    });
   } else {
     try {
       BASE_SHA = await findSuccessfulCommit(buildUrl, mainBranchName);
@@ -62,14 +64,15 @@ async function findSuccessfulCommit(buildUrl, branch) {
 
   do {
     const fullUrl = nextPage ? `${url}&page-token=${nextPage}` : url;
-    const { next_page_token, sha } = await getJson(fullUrl)
-      .then(async ({ next_page_token, items }) => {
+    const { next_page_token, sha } = await getJson(fullUrl).then(
+      async ({ next_page_token, items }) => {
         const pipeline = await findSuccessfulPipeline(items);
         return {
           next_page_token,
-          sha: pipeline ? pipeline.vcs.revision : void 0
+          sha: pipeline ? pipeline.vcs.revision : void 0,
         };
-      });
+      }
+    );
 
     foundSHA = sha;
     nextPage = next_page_token;
@@ -85,9 +88,11 @@ async function findSuccessfulCommit(buildUrl, branch) {
  */
 async function findSuccessfulPipeline(pipelines) {
   for (const pipeline of pipelines) {
-    if (!pipeline.errors.length
-      && commitExists(pipeline.vcs.revision)
-      && await isWorkflowSuccessful(pipeline.id)) {
+    if (
+      !pipeline.errors.length &&
+      commitExists(pipeline.vcs.revision) &&
+      (await isWorkflowSuccessful(pipeline.id))
+    ) {
       return pipeline;
     }
   }
@@ -114,8 +119,9 @@ function commitExists(commitSha) {
  * @returns {boolean}
  */
 async function isWorkflowSuccessful(pipelineId) {
-  return getJson(`https://circleci.com/api/v2/pipeline/${pipelineId}/workflow`)
-    .then(({ items }) => items.every(item => item.status === 'success'));
+  return getJson(
+    `https://circleci.com/api/v2/pipeline/${pipelineId}/workflow`
+  ).then(({ items }) => items.every((item) => item.status === 'success'));
 }
 
 /**
@@ -125,17 +131,19 @@ async function isWorkflowSuccessful(pipelineId) {
  */
 async function getJson(url) {
   return new Promise((resolve, reject) => {
-    https.get(url, res => {
-      let data = [];
+    https
+      .get(url, (res) => {
+        let data = [];
 
-      res.on('data', chunk => {
-        data.push(chunk);
-      });
+        res.on('data', (chunk) => {
+          data.push(chunk);
+        });
 
-      res.on('end', () => {
-        const response = Buffer.concat(data).toString();
-        resolve(JSON.parse(response));
-      });
-    }).on('error', error => reject(error));
+        res.on('end', () => {
+          const response = Buffer.concat(data).toString();
+          resolve(JSON.parse(response));
+        });
+      })
+      .on('error', (error) => reject(error));
   });
 }

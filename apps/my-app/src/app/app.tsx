@@ -11,8 +11,7 @@ export function App() {
         <h1>Welcome to my-app!</h1>
       </header>
       <main>
-        {star} is born a {star}!
-        Another change!
+        {star} is born a {star}! Another change!
       </main>
     </div>
   );

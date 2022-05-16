@@ -1,9 +1,13 @@
-const { Octokit } = require("@octokit/action");
-const core = require("@actions/core");
+const { Octokit } = require('@octokit/action');
+const core = require('@actions/core');
 const github = require('@actions/github');
 const { execSync } = require('child_process');
 
-const { runId, repo: { repo, owner }, eventName } = github.context;
+const {
+  runId,
+  repo: { repo, owner },
+  eventName,
+} = github.context;
 process.env.GITHUB_TOKEN = process.argv[2];
 const mainBranchName = process.argv[3];
 const errorOnNoSuccessfulWorkflow = process.argv[4];
@@ -14,10 +18,18 @@ let BASE_SHA;
   const HEAD_SHA = execSync(`git rev-parse HEAD`, { encoding: 'utf-8' });
 
   if (eventName === 'pull_request') {
-    BASE_SHA = execSync(`git merge-base origin/${mainBranchName} HEAD`, { encoding: 'utf-8' });
+    BASE_SHA = execSync(`git merge-base origin/${mainBranchName} HEAD`, {
+      encoding: 'utf-8',
+    });
   } else {
     try {
-      BASE_SHA = await findSuccessfulCommit(workflowId, runId, owner, repo, mainBranchName);
+      BASE_SHA = await findSuccessfulCommit(
+        workflowId,
+        runId,
+        owner,
+        repo,
+        mainBranchName
+      );
     } catch (e) {
       core.setFailed(e.message);
       return;
@@ -29,16 +41,24 @@ let BASE_SHA;
         return;
       } else {
         process.stdout.write('\n');
-        process.stdout.write(`WARNING: Unable to find a successful workflow run on 'origin/${mainBranchName}'\n`);
-        process.stdout.write(`We are therefore defaulting to use HEAD~1 on 'origin/${mainBranchName}'\n`);
+        process.stdout.write(
+          `WARNING: Unable to find a successful workflow run on 'origin/${mainBranchName}'\n`
+        );
+        process.stdout.write(
+          `We are therefore defaulting to use HEAD~1 on 'origin/${mainBranchName}'\n`
+        );
         process.stdout.write('\n');
-        process.stdout.write(`NOTE: You can instead make this a hard error by settting 'error-on-no-successful-workflow' on the action in your workflow.\n`);
+        process.stdout.write(
+          `NOTE: You can instead make this a hard error by settting 'error-on-no-successful-workflow' on the action in your workflow.\n`
+        );
 
         BASE_SHA = execSync(`git rev-parse HEAD~1`, { encoding: 'utf-8' });
       }
     } else {
       process.stdout.write('\n');
-      process.stdout.write(`Found the last successful workflow run on 'origin/${mainBranchName}'\n`);
+      process.stdout.write(
+        `Found the last successful workflow run on 'origin/${mainBranchName}'\n`
+      );
       process.stdout.write(`Commit: ${BASE_SHA}\n`);
     }
   }
@@ -68,22 +88,31 @@ function reportFailure(branchName) {
 async function findSuccessfulCommit(workflow_id, run_id, owner, repo, branch) {
   const octokit = new Octokit();
   if (!workflow_id) {
-    workflow_id = await octokit.request(`GET /repos/${owner}/${repo}/actions/runs/${run_id}`, {
-      owner,
-      repo,
-      branch,
-      run_id
-    }).then(({ data: { workflow_id } }) => workflow_id);
+    workflow_id = await octokit
+      .request(`GET /repos/${owner}/${repo}/actions/runs/${run_id}`, {
+        owner,
+        repo,
+        branch,
+        run_id,
+      })
+      .then(({ data: { workflow_id } }) => workflow_id);
   }
   // fetch all workflow runs on a given repo/branch/workflow with push and success
-  const shas = await octokit.request(`GET /repos/${owner}/${repo}/actions/workflows/${workflow_id}/runs`, {
-    owner,
-    repo,
-    branch,
-    workflow_id,
-    event: 'push',
-    status: 'success'
-  }).then(({ data: { workflow_runs } }) => workflow_runs.map(run => run.head_sha));
+  const shas = await octokit
+    .request(
+      `GET /repos/${owner}/${repo}/actions/workflows/${workflow_id}/runs`,
+      {
+        owner,
+        repo,
+        branch,
+        workflow_id,
+        event: 'push',
+        status: 'success',
+      }
+    )
+    .then(({ data: { workflow_runs } }) =>
+      workflow_runs.map((run) => run.head_sha)
+    );
 
   return await findExistingCommit(shas);
 }

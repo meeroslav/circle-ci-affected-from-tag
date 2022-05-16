@@ -1,61 +1,64 @@
-image: node:16
+image: node:lts
+
+variables:
+  YARN_CACHE_FOLDER: '$CI_PROJECT_DIR/.yarn'
+
 stages:
-  - setup
   - test
   - build
-
-install-dependencies:
-  stage: setup
-  interruptible: true
-  only:
-    - main
-    - merge_requests
-  cache:
-    - key:
-        files:
-          - yarn.lock
-      paths:
-        - .yarn-cache/
-  script:
-    - yarn --frozen-lockfile --cache-folder .yarn-cache
 
 .distributed:
   interruptible: true
   only:
     - main
     - merge_requests
-  needs:
-    - install-dependencies
+  cache:
+    key:
+      files:
+        - yarn.lock
+    paths:
+      - .yarn
+  before_script:
+    - yarn --frozen-lockfile
+    - NX_HEAD=$CI_COMMIT_SHA
+    - NX_BASE=${CI_MERGE_REQUEST_DIFF_BASE_SHA:-$CI_COMMIT_BEFORE_SHA}
   artifacts:
     paths:
       - node_modules/.cache/nx
+
+testtest:
+  stage: test
+  extends: .distributed
+  script:
+    - echo "$NX_HEAD"
+    - echo "$NX_BASE"
 
 workspace-lint:
   stage: test
   extends: .distributed
   script:
-    - yarn nx workspace-lint
+    - yarn nx workspace-lint --base=$NX_BASE --head=$NX_HEAD
 
 format-check:
   stage: test
   extends: .distributed
   script:
-    - yarn nx format:check
+    - yarn nx format:check --base=$NX_BASE --head=$NX_HEAD
 
 lint:
   stage: test
   extends: .distributed
   script:
-    - yarn nx affected --base=HEAD~1 --target=lint --parallel=3
+    - yarn nx affected --base=$NX_BASE --head=$NX_HEAD --target=lint --parallel=3
 
 test:
   stage: test
   extends: .distributed
   script:
-    - yarn nx affected --base=HEAD~1 --target=test --parallel=3 --ci --code-coverage
+    - yarn nx affected --base=$NX_BASE --head=$NX_HEAD --target=test --parallel=3 --ci --code-coverage
 
 build:
   stage: build
   extends: .distributed
   script:
-    - yarn nx affected --base=HEAD~1 --target=build --parallel=3
+    - yarn nx affected --base=$NX_BASE --head=$NX_HEAD --target=build --parallel=3
