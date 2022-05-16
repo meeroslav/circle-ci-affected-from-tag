@@ -1,3 +1,4 @@
+image: node:16
 stages:
   - setup
   - test
@@ -15,7 +16,7 @@ install-dependencies:
           - yarn.lock
       paths:
         - .yarn-cache/
- script:
+  script:
     - yarn --frozen-lockfile --cache-folder .yarn-cache
 
 .distributed:
